@@ -1,0 +1,190 @@
+{% extends 'shared/base.html' %}
+{% block content %}
+<div class="w-full min-h-screen flex flex-col items-center justify-start py-8 px-2 relative">
+  <!-- Background Image -->
+  <div class="absolute inset-0 bg-cover bg-center bg-no-repeat z-0" style="background-image: url('https://images.unsplash.com/photo-1611606063065-ee7946f0787a?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');">
+    <div class="absolute inset-0 bg-black bg-opacity-60"></div>
+  </div>
+  <div class="w-full max-w-2xl bg-gray-900/80 rounded-2xl shadow-2xl p-6 md:p-10 mb-8 glass-card z-10 relative">
+    <h2 class="text-2xl font-extrabold text-white text-center mb-8 tracking-tight">Notify Students</h2>
+    <form method="POST" class="mb-10">
+      {{ form.hidden_tag() }}
+      <div class="mb-6" style="position:relative;">
+        {{ form.message.label(class_="block text-indigo-200 font-semibold mb-2") }}
+        {{ form.message(class_="w-full px-4 py-3 rounded-lg bg-gray-800/80 text-white border border-indigo-700 focus:ring-2 focus:ring-indigo-400 focus:outline-none transition", maxlength="150", id="admin-message-textarea") }}
+        <span id="char-count" style="position:absolute; bottom:10px; right:18px; color:#a5b4fc; font-size:0.95em;">0/150</span>
+      </div>
+      <div class="mb-6">
+        {{ form.class_for.label(class_="block text-indigo-200 font-semibold mb-2") }}
+        {{ form.class_for(class_="w-full px-4 py-3 rounded-lg bg-gray-800/80 text-white border border-indigo-700 focus:ring-2 focus:ring-indigo-400 focus:outline-none transition") }}
+        {% if form.class_for.errors %}
+          {% for error in form.class_for.errors %}
+            <span class="text-red-400 text-sm">{{ error }}</span>
+          {% endfor %}
+        {% endif %}
+      </div>
+      {{ form.submit(class_="w-full btn-premium py-3 text-lg") }}
+    </form>
+    <div class="mt-8">
+      <h3 class="text-indigo-400 font-bold text-lg mb-4">Sent Notifications</h3>
+      {% set newest = notifications[:10] %}
+      {% set oldest = notifications[10:] %}
+      <ul class="flex flex-col gap-4">
+        {% for note in newest %}
+          {% if note.message and note.message|trim %}
+            <li class="bg-gray-800/80 rounded-xl p-5 shadow flex flex-col gap-2 animate__animated animate__fadeIn">
+              <div class="text-gray-100 text-base">
+                {% set admin_message = note.message|replace('href="' + url_for('student.pdfs') + '"', 'href="' + url_for('admin.upload_pdfs') + '"') %}
+                {% set admin_message = admin_message|replace('href="' + url_for('student.test_update') + '"', 'href="' + url_for('admin.test_upload') + '"') %}
+                {% set admin_message = admin_message|replace('href="' + url_for('student.resources') + '"', 'href="' + url_for('admin.resource') + '"') %}
+                {% set admin_message = admin_message|replace('href="' + url_for('student.notifications') + '"', 'href="' + url_for('admin.notifystudents') + '"') %}
+                {% set admin_message = admin_message|replace('Download from Study Material', 'View PDFs') %}
+                {% set admin_message = admin_message|replace('Update your marks', 'View Tests') %}
+                {% set admin_message = admin_message|replace('Open Resource', 'View Resources') %}
+                {% set admin_message = admin_message|replace('See it', 'View Notifications') %}
+                {{ admin_message|safe }}
+              </div>
+              <div class="text-xs text-indigo-300 mt-1">{{ note.created_at|ist_time('%Y-%m-%d %H:%M') }}</div>
+              {% if note.class_for and not note.message.startswith('📄') %}
+                <div class="text-xs text-gray-400 mt-1">Class: {% if note.class_for == 'all' %}All Students{% elif note.class_for == '6' %}Class 6{% elif note.class_for == '7' %}Class 7{% elif note.class_for == '8' %}Class 8{% elif note.class_for == '9' %}Class 9{% elif note.class_for == '10' %}Class 10{% elif note.class_for == '11_arts' %}Class 11 Arts{% elif note.class_for == '11_science' %}Class 11 Science{% elif note.class_for == '12_arts' %}Class 12 Arts{% elif note.class_for == '12_science' %}Class 12 Science{% else %}{{ note.class_for }}{% endif %}</div>
+              {% endif %}
+            </li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+      <div class="mt-10">
+        <h3 class="text-lg font-bold text-white mb-4">Older Notifications</h3>
+        <div class="overflow-x-auto">
+          <table class="min-w-full bg-gray-800/80 rounded-lg">
+            <thead>
+              <tr>
+                <th class="px-4 py-2 text-left text-indigo-300">Message</th>
+                <th class="px-4 py-2 text-left text-indigo-300">Date</th>
+                <th class="px-4 py-2 text-left text-indigo-300">Class</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if oldest|length == 0 %}
+                <tr>
+                  <td colspan="3" class="px-4 py-4 text-center text-gray-400">No older notifications.</td>
+                </tr>
+              {% else %}
+                {% for note in oldest %}
+                <tr class="border-b border-gray-700 hover:bg-gray-700/40 transition">
+                  <td class="px-4 py-2 text-white">
+                    {% set admin_message = note.message|replace('href="' + url_for('student.pdfs') + '"', 'href="' + url_for('admin.upload_pdfs') + '"') %}
+                    {% set admin_message = admin_message|replace('href="' + url_for('student.test_update') + '"', 'href="' + url_for('admin.test_upload') + '"') %}
+                    {% set admin_message = admin_message|replace('href="' + url_for('student.resources') + '"', 'href="' + url_for('admin.resource') + '"') %}
+                    {% set admin_message = admin_message|replace('href="' + url_for('student.notifications') + '"', 'href="' + url_for('admin.notifystudents') + '"') %}
+                    {% set admin_message = admin_message|replace('Download from Study Material', 'View PDFs') %}
+                    {% set admin_message = admin_message|replace('Update your marks', 'View Tests') %}
+                    {% set admin_message = admin_message|replace('Open Resource', 'View Resources') %}
+                    {% set admin_message = admin_message|replace('See it', 'View Notifications') %}
+                    {{ admin_message[:30]|safe }}{% if admin_message|length > 30 %}... <button type="button" class="read-more-btn" data-message="{{ admin_message|escape }}">Read more</button>{% endif %}
+                  </td>
+                  <td class="px-4 py-2 text-indigo-200">{{ note.created_at|ist_time('%Y-%m-%d %H:%M') }}</td>
+                  <td class="px-4 py-2 text-gray-300">
+                    {% if note.class_for == 'all' %}All Students{% elif note.class_for == '6' %}Class 6{% elif note.class_for == '7' %}Class 7{% elif note.class_for == '8' %}Class 8{% elif note.class_for == '9' %}Class 9{% elif note.class_for == '10' %}Class 10{% elif note.class_for == '11_arts' %}Class 11 Arts{% elif note.class_for == '11_science' %}Class 11 Science{% elif note.class_for == '12_arts' %}Class 12 Arts{% elif note.class_for == '12_science' %}Class 12 Science{% else %}{{ note.class_for }}{% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="w-full text-center mt-10">
+      <a href="{{ url_for('admin.home1') }}" class="btn-premium px-8 py-2">Back to Home</a>
+    </div>
+    <div class="w-full text-center mt-6">
+      <p class="text-xs text-gray-400">Note: All notifications are automatically deleted after 15 days.</p>
+    </div>
+  </div>
+</div>
+<!-- Modal for full message -->
+<div id="readMoreModal" class="read-more-modal" style="display:none;">
+  <div class="read-more-modal-content">
+    <span class="read-more-modal-close" id="readMoreModalClose">&times;</span>
+    <div id="readMoreModalMessage"></div>
+  </div>
+</div>
+<script>
+  const textarea = document.getElementById('admin-message-textarea');
+  const counter = document.getElementById('char-count');
+  function updateCounter() {
+    const len = textarea.value.length;
+    counter.textContent = `${len}/150`;
+    if (len >= 150) {
+      textarea.value = textarea.value.substring(0, 150);
+      counter.textContent = '150/150';
+    }
+  }
+  textarea.addEventListener('input', updateCounter);
+  updateCounter();
+
+  // Modal logic for Read more
+  document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('readMoreModal');
+    const modalContent = document.getElementById('readMoreModalMessage');
+    const modalClose = document.getElementById('readMoreModalClose');
+    document.querySelectorAll('.read-more-btn').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        modalContent.innerHTML = btn.getAttribute('data-message');
+        modal.style.display = 'flex';
+      });
+    });
+    modalClose.addEventListener('click', function() {
+      modal.style.display = 'none';
+    });
+    window.addEventListener('click', function(event) {
+      if (event.target === modal) {
+        modal.style.display = 'none';
+      }
+    });
+  });
+</script>
+<style>
+.read-more-modal {
+  display: none;
+  position: fixed;
+  z-index: 10000;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(24,28,36,0.85);
+  align-items: center;
+  justify-content: center;
+}
+.read-more-modal[style*="display: flex"] {
+  display: flex !important;
+}
+.read-more-modal-content {
+  background: #23263a;
+  color: #fff;
+  padding: 2rem 2.5rem;
+  border-radius: 1rem;
+  max-width: 90vw;
+  max-height: 70vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 32px 0 rgba(0,0,0,0.25);
+  position: relative;
+  font-size: 1.1em;
+}
+.read-more-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1.5rem;
+  font-size: 2rem;
+  color: #7f5af0;
+  cursor: pointer;
+  font-weight: bold;
+  transition: color 0.2s;
+}
+.read-more-modal-close:hover {
+  color: #ff1744;
+}
+</style>
+{% endblock %} 

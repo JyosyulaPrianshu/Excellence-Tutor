@@ -1,0 +1,99 @@
+{% extends 'shared/base.html' %}
+{% block content %}
+<div class="w-full min-h-screen flex flex-col items-center justify-start py-8 px-2 relative">
+  <!-- Background Image -->
+  <div class="absolute inset-0 bg-cover bg-center bg-no-repeat z-0" style="background-image: url(https://plus.unsplash.com/premium_photo-1670126472088-b83babdab0e4?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Z2xhc3MlMjBncmFkaWVudCUyMGJsYWNrfGVufDB8MXwwfHx8MA%3D%3D);">
+    <div class="absolute inset-0 bg-black bg-opacity-60"></div>
+  </div>
+  <div class="w-full max-w-6xl mx-auto z-10 relative">
+    <h2 class="text-3xl font-extrabold text-white text-center mb-10 tracking-tight" style="text-shadow: 0 2px 16px rgba(0,0,0,0.5)">Suspicious Activity Monitoring</h2>
+    
+    {% if suspicious_marks %}
+      <div class="space-y-6">
+        {% for item in suspicious_marks %}
+          <div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-xl p-6 border border-red-500/30">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-xl font-bold text-red-400">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                {{ item.type }}
+              </h3>
+              {% if item.count %}
+                <span class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                  {{ item.count }} instances
+                </span>
+              {% endif %}
+            </div>
+            
+            <!-- Student Information -->
+            <div class="bg-gray-800/60 rounded-xl p-4 mb-4">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div><span class="font-semibold text-gray-300">Student:</span> <span class="text-gray-100">{{ item.profile.full_name }}</span></div>
+                <div><span class="font-semibold text-gray-300">Class:</span> <span class="text-gray-100">{{ item.profile.student_class }}</span></div>
+                <div><span class="font-semibold text-gray-300">Email:</span> <span class="text-gray-100">{{ item.student.email }}</span></div>
+              </div>
+            </div>
+            
+            <!-- Marks Details -->
+            {% if item.type == 'Multiple Perfect Scores' %}
+              <div class="bg-gray-800/60 rounded-xl p-4">
+                <h4 class="text-lg font-semibold text-yellow-300 mb-3">Perfect Score Tests:</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {% for mark, test in item.marks %}
+                    <div class="bg-gray-700/60 rounded-lg p-3">
+                      <div class="text-sm">
+                        <div class="font-semibold text-gray-200">{{ test.name }}</div>
+                        <div class="text-gray-400">{{ test.date.strftime('%d-%m-%Y') }}</div>
+                        <div class="text-green-400 font-bold">{{ mark.marks_obtained }}/{{ test.total_marks }}</div>
+                        <div class="text-xs text-gray-500">{{ mark.updated_at.strftime('%d-%m-%Y %H:%M') }}</div>
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+            {% elif item.type == 'Marks Exceed Total' %}
+              <div class="bg-gray-800/60 rounded-xl p-4">
+                <h4 class="text-lg font-semibold text-red-300 mb-3">Invalid Mark:</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div><span class="font-semibold text-gray-300">Test:</span> <span class="text-gray-100">{{ item.test.name }}</span></div>
+                  <div><span class="font-semibold text-gray-300">Date:</span> <span class="text-gray-100">{{ item.test.date.strftime('%d-%m-%Y') }}</span></div>
+                  <div><span class="font-semibold text-gray-300">Submitted Mark:</span> <span class="text-red-400 font-bold">{{ item.mark.marks_obtained }}</span></div>
+                  <div><span class="font-semibold text-gray-300">Test Total:</span> <span class="text-gray-100">{{ item.test.total_marks }}</span></div>
+                </div>
+              </div>
+            {% endif %}
+            
+            <!-- Action Buttons -->
+            <div class="flex gap-3 mt-4">
+              <a href="{{ url_for('admin.student_profile', student_id=item.profile.id) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+                <i class="fas fa-user mr-1"></i>View Student Profile
+              </a>
+              {% if item.type == 'Marks Exceed Total' %}
+                <a href="{{ url_for('admin.edit_mark', mark_id=item.mark.id) }}" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+                  <i class="fas fa-edit mr-1"></i>Fix Mark
+                </a>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-xl p-8 border border-green-500/30 text-center">
+        <i class="fas fa-shield-check text-6xl text-green-400 mb-4"></i>
+        <h3 class="text-2xl font-bold text-green-400 mb-2">No Suspicious Activity Detected</h3>
+        <p class="text-gray-300">All test marks appear to be within normal ranges.</p>
+      </div>
+    {% endif %}
+    
+    <div class="w-full text-center mt-10">
+      <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <a href="{{ url_for('admin.test_marks_management') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 shadow-lg hover:shadow-xl">
+          <i class="fas fa-chart-line mr-2"></i>Back to Marks Management
+        </a>
+        <a href="{{ url_for('admin.home1') }}" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 shadow-lg hover:shadow-xl">
+          <i class="fas fa-home mr-2"></i>Back to Home
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,85 @@
+{% extends 'shared/base.html' %}
+{% block content %}
+<style>
+  body, html { background: #181c24 !important; }
+  .glass-card {
+    background: rgba(24,28,36,0.45);
+    border-radius: 1.5rem;
+    box-shadow: 0 4px 32px 0 rgba(0,0,0,0.10);
+    border: 1.5px solid rgba(127,90,240,0.13);
+    backdrop-filter: blur(8px);
+    position: relative;
+    z-index: 3;
+    margin-bottom: 1rem;
+    padding: 2.5rem 2rem 3rem 2rem;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+    color: #e0e6f7;
+  }
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: rgba(24,28,36,0.35);
+    border-radius: 1rem;
+    overflow: hidden;
+    color: #e0e6f7;
+    margin-bottom: 2em;
+    box-shadow: 0 2px 16px 0 rgba(127,90,240,0.08);
+  }
+  th, td {
+    padding: 0.9em 1em;
+    text-align: left;
+    border-bottom: 1px solid rgba(127,90,240,0.10);
+  }
+  th {
+    background: rgba(127,90,240,0.13);
+    color: #b7bfff;
+    font-weight: 700;
+    font-size: 1.05em;
+  }
+  tr:last-child td { border-bottom: none; }
+  .bg-indigo-600, .bg-red-600, .bg-purple-700, .bg-green-600 {
+    background: linear-gradient(90deg, #7f5af0 0%, #23263a 100%) !important;
+    color: #fff !important;
+  }
+  .text-indigo-700, .text-red-700, .text-purple-700, .text-green-700 {
+    color: #b7bfff !important;
+  }
+  a, .text-indigo-600, .hover\:underline:hover {
+    color: #b7bfff !important;
+    text-decoration: underline;
+  }
+</style>
+<div class="glass-card">
+  <h2 class="text-2xl font-bold mb-4 text-center text-indigo-200">Pending Dropout Requests</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Class</th>
+        <th>Requested At</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for req in requests %}
+      <tr>
+        <td>{{ req.user.profile.full_name }}</td>
+        <td>{{ req.user.profile.student_class }}</td>
+        <td>{{ req.requested_at.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td>
+          <a href="{{ url_for('admin.dropout_request_detail', request_id=req.id) }}" class="text-indigo-600 hover:underline">View</a>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="text-center py-4 text-gray-500">No pending requests found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div class="mt-6 text-center">
+    <a href="{{ url_for('admin.home1') }}" class="text-indigo-600 hover:underline">Back to Dashboard</a>
+  </div>
+</div>
+{% endblock %} 

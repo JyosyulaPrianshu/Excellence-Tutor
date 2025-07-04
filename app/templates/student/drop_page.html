@@ -1,0 +1,108 @@
+{% extends 'shared/base.html' %}
+{% block content %}
+<style>
+  body, html { background: #181c24 !important; }
+  .glass-card {
+    background: rgba(24,28,36,0.45);
+    border-radius: 1.5rem;
+    box-shadow: 0 4px 32px 0 rgba(0,0,0,0.10);
+    border: 1.5px solid rgba(127,90,240,0.13);
+    backdrop-filter: blur(8px);
+    position: relative;
+    z-index: 3;
+    margin-bottom: 1rem;
+    padding: 2.5rem 2rem 3rem 2rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    color: #e0e6f7;
+  }
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: rgba(24,28,36,0.35);
+    border-radius: 1rem;
+    overflow: hidden;
+    color: #e0e6f7;
+    margin-bottom: 2em;
+    box-shadow: 0 2px 16px 0 rgba(127,90,240,0.08);
+  }
+  th, td {
+    padding: 0.9em 1em;
+    text-align: left;
+    border-bottom: 1px solid rgba(127,90,240,0.10);
+  }
+  th {
+    background: rgba(127,90,240,0.13);
+    color: #b7bfff;
+    font-weight: 700;
+    font-size: 1.05em;
+  }
+  tr:last-child td { border-bottom: none; }
+  .bg-red-600 {
+    background: linear-gradient(90deg, #7f5af0 0%, #23263a 100%) !important;
+    color: #fff !important;
+  }
+  .text-indigo-700, .text-red-700, .text-purple-700, .text-green-700 {
+    color: #b7bfff !important;
+  }
+  input[type="checkbox"] {
+    accent-color: #7f5af0;
+    transform: scale(1.1);
+  }
+  button, .bg-red-600 {
+    border-radius: 9999px;
+    font-weight: 700;
+    font-size: 1.1em;
+    padding: 0.7em 2.5em;
+    margin-top: 0.5em;
+    box-shadow: 0 2px 16px 0 #7f5af033;
+    transition: background 0.2s, box-shadow 0.2s;
+  }
+  button:hover, .bg-red-600:hover {
+    background: linear-gradient(90deg, #23263a 0%, #7f5af0 100%) !important;
+    box-shadow: 0 4px 32px 0 #7f5af033;
+  }
+</style>
+<div class="glass-card">
+  <h2 class="text-2xl font-bold mb-4 text-center text-indigo-200">Quit Excellence Tutorial</h2>
+  {% if existing_request %}
+    <div class="bg-yellow-100 text-yellow-800 p-4 rounded mb-4 text-center">
+      You have already submitted a dropout request. Please wait for admin approval.
+    </div>
+  {% else %}
+    <table class="w-full mb-4 text-sm">
+      <tr><th>Name</th><td>{{ profile.full_name }}</td></tr>
+      <tr><th>Roll Number</th><td>{{ profile.roll_number }}</td></tr>
+      <tr><th>Class</th><td>{{ profile.student_class }}</td></tr>
+      <tr><th>School</th><td>{{ profile.school_name }}</td></tr>
+      <tr><th>Outstanding Dues</th><td><span class="font-semibold text-red-600">₹{{ total_due }}</span></td></tr>
+    </table>
+    {% if total_due > 0 %}
+      <div class="bg-red-100 text-red-800 p-4 rounded mb-4 text-center">
+        You must clear all dues before you can quit the tuition.
+      </div>
+    {% endif %}
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="flex items-center mb-4">
+        <input type="checkbox" id="quit_confirm" name="quit_confirm" class="mr-2" onclick="toggleQuitButton()">
+        <label for="quit_confirm" class="text-gray-300">I'm quitting from Excellence Tutorial forever. Thank you to admin for his support and guidance till today.</label>
+      </div>
+      <button type="submit" id="quit_btn" class="w-full bg-red-600" {% if total_due > 0 %}disabled{% endif %} disabled>Quit Tuition</button>
+    </form>
+    <script>
+      const totalDue = Number("{{ total_due|default(0) }}");
+      function toggleQuitButton() {
+        const cb = document.getElementById('quit_confirm');
+        const btn = document.getElementById('quit_btn');
+        btn.disabled = !cb.checked || totalDue > 0;
+      }
+    </script>
+  {% endif %}
+  <div class="mt-6 text-center">
+    <a href="{{ url_for('student.home') }}" class="text-indigo-600 hover:underline">Back to Dashboard</a>
+  </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,71 @@
+{% extends 'shared/base.html' %}
+{% block content %}
+<div class="w-full min-h-screen flex flex-col items-center justify-center py-8 px-2 relative">
+  <!-- Background Image -->
+  <div class="absolute inset-0 bg-cover bg-center bg-no-repeat z-0" style="background-image: url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dGVhbXxlbnwwfHwwfHx8MA%3D%3D');">
+    <div class="absolute inset-0 bg-black bg-opacity-60"></div>
+  </div>
+  <div class="w-full max-w-2xl bg-gray-900/80 rounded-2xl shadow-2xl p-8 glass-card z-10 relative">
+    <h2 class="text-2xl font-extrabold text-white text-center mb-2 tracking-tight">Edit Test Mark</h2>
+    <p class="text-indigo-200 text-center mb-6">Update the mark for this student's test.</p>
+    
+    <!-- Student Information -->
+    <div class="bg-gray-800/60 rounded-xl p-6 mb-6">
+      <h3 class="text-lg font-semibold text-white mb-4">Student Information</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+        <div><span class="font-semibold text-gray-300">Name:</span> <span class="text-gray-100">{{ profile.full_name }}</span></div>
+        <div><span class="font-semibold text-gray-300">Class:</span> <span class="text-gray-100">{{ profile.student_class }}</span></div>
+        <div><span class="font-semibold text-gray-300">Email:</span> <span class="text-gray-100">{{ user.email }}</span></div>
+        <div><span class="font-semibold text-gray-300">Roll Number:</span> <span class="text-gray-100">{{ profile.roll_number }}</span></div>
+      </div>
+    </div>
+    
+    <!-- Test Information -->
+    <div class="bg-gray-800/60 rounded-xl p-6 mb-6">
+      <h3 class="text-lg font-semibold text-white mb-4">Test Information</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+        <div><span class="font-semibold text-gray-300">Test Name:</span> <span class="text-gray-100">{{ test.name }}</span></div>
+        <div><span class="font-semibold text-gray-300">Date:</span> <span class="text-gray-100">{{ test.date.strftime('%d-%m-%Y') }}</span></div>
+        <div><span class="font-semibold text-gray-300">Total Marks:</span> <span class="text-gray-100">{{ test.total_marks }}</span></div>
+        <div><span class="font-semibold text-gray-300">Current Mark:</span> <span class="text-indigo-300 font-bold">{{ mark.marks_obtained }}</span></div>
+      </div>
+    </div>
+    
+    <!-- Edit Form -->
+    <form method="POST" class="space-y-6">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div>
+        <label class="block text-indigo-200 font-semibold mb-2" for="marks_obtained">New Marks Obtained</label>
+        <input type="number" 
+               name="marks_obtained" 
+               id="marks_obtained"
+               value="{{ mark.marks_obtained }}"
+               min="0" 
+               max="{{ test.total_marks }}"
+               class="w-full px-4 py-3 rounded-lg bg-gray-800/80 text-white border border-indigo-700 focus:ring-2 focus:ring-indigo-400 focus:outline-none transition"
+               required>
+        <p class="text-sm text-gray-400 mt-1">Maximum allowed: {{ test.total_marks }}</p>
+      </div>
+      
+      <div class="flex gap-4">
+        <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition">
+          <i class="fas fa-save mr-2"></i>Update Mark
+        </button>
+        <a href="{{ url_for('admin.test_marks_management') }}" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition text-center">
+          <i class="fas fa-times mr-2"></i>Cancel
+        </a>
+      </div>
+    </form>
+    
+    <!-- Warning -->
+    <div class="mt-6 p-4 bg-yellow-900/30 border border-yellow-600/30 rounded-lg">
+      <div class="flex items-center">
+        <i class="fas fa-exclamation-triangle text-yellow-400 mr-3"></i>
+        <div class="text-yellow-200 text-sm">
+          <strong>Warning:</strong> This action will be logged for audit purposes. Only change marks if there is a legitimate reason.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 

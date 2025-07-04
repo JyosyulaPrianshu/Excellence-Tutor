@@ -1,0 +1,55 @@
+{% extends 'shared/base.html' %}
+{% block content %}
+<main class="mx-auto flex min-h-screen w-full items-center justify-center bg-gray-900 text-white">
+  <section class="flex w-full max-w-6xl flex-col space-y-8 p-6">
+    <div class="text-center">
+      <h1 class="text-4xl font-bold mb-2">📚 Learning Resources</h1>
+      <p class="text-gray-300">Explore additional learning materials and resources</p>
+    </div>
+    
+    {% if resources %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for resource in resources %}
+      <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20 hover:border-indigo-400/50 transition-all duration-300 hover:transform hover:scale-105 shadow-lg hover:shadow-xl">
+        <div class="flex justify-between items-start mb-4">
+          <div class="flex-1">
+            <h3 class="font-bold text-xl text-white mb-2">{{ resource.name }}</h3>
+            {% if resource.description %}
+              <p class="text-gray-300 text-sm mb-3">{{ resource.description }}</p>
+            {% endif %}
+            <p class="text-indigo-300 text-xs">{{ resource.created_at.strftime('%B %d, %Y') }}</p>
+            <p class="text-xs text-indigo-300 mt-1">Class: {% if resource.class_for == 'all' %}All Students{% elif resource.class_for == '6' %}Class 6{% elif resource.class_for == '7' %}Class 7{% elif resource.class_for == '8' %}Class 8{% elif resource.class_for == '9' %}Class 9{% elif resource.class_for == '10' %}Class 10{% elif resource.class_for == '11_arts' %}Class 11 Arts{% elif resource.class_for == '11_science' %}Class 11 Science{% elif resource.class_for == '12_arts' %}Class 12 Arts{% elif resource.class_for == '12_science' %}Class 12 Science{% else %}{{ resource.class_for }}{% endif %}</p>
+          </div>
+          <div class="ml-4">
+            <a href="{{ resource.link }}" target="_blank" class="inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 transform hover:scale-110 shadow-lg">
+              <i class="fas fa-arrow-right text-white text-sm"></i>
+            </a>
+          </div>
+        </div>
+        
+        <div class="mt-4">
+          <a href="{{ resource.link }}" target="_blank" class="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center">
+            <i class="fas fa-external-link-alt mr-2"></i>
+            Open Resource
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+      <div class="text-6xl mb-4">📚</div>
+      <h3 class="text-xl font-semibold text-gray-300 mb-2">No Resources Available</h3>
+      <p class="text-gray-400">Check back later for new learning materials!</p>
+    </div>
+    {% endif %}
+    
+    <!-- Back Button -->
+    <div class="text-center mt-8">
+      <a href="{{ url_for('student.home') }}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
+        <i class="fas fa-arrow-left mr-2"></i>Back to Home
+      </a>
+    </div>
+  </section>
+</main>
+{% endblock %} 

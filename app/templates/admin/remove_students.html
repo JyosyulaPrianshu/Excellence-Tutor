@@ -1,0 +1,153 @@
+{% extends 'shared/base.html' %}
+{% block content %}
+<style>
+  body, html { background: #181c24 !important; }
+  .glass-card {
+    background: rgba(24,28,36,0.45);
+    border-radius: 1.5rem;
+    box-shadow: 0 4px 32px 0 rgba(0,0,0,0.10);
+    border: 1.5px solid rgba(127,90,240,0.13);
+    backdrop-filter: blur(8px);
+    position: relative;
+    z-index: 3;
+    margin-bottom: 1rem;
+    padding: 2.5rem 2rem 3rem 2rem;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+    color: #e0e6f7;
+  }
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: rgba(24,28,36,0.35);
+    border-radius: 1rem;
+    overflow: hidden;
+    color: #e0e6f7;
+    margin-bottom: 2em;
+    box-shadow: 0 2px 16px 0 rgba(127,90,240,0.08);
+  }
+  th, td {
+    padding: 0.9em 1em;
+    text-align: left;
+    border-bottom: 1px solid rgba(127,90,240,0.10);
+  }
+  th {
+    background: rgba(127,90,240,0.13);
+    color: #b7bfff;
+    font-weight: 700;
+    font-size: 1.05em;
+  }
+  tr:last-child td { border-bottom: none; }
+  .bg-indigo-600, .bg-red-600, .bg-purple-700, .bg-green-600 {
+    background: linear-gradient(90deg, #7f5af0 0%, #23263a 100%) !important;
+    color: #fff !important;
+  }
+  .text-indigo-700, .text-red-700, .text-purple-700, .text-green-700 {
+    color: #b7bfff !important;
+  }
+  select, input[type="text"] {
+    background: rgba(36,40,56,0.18);
+    color: #e0e6f7;
+    border: 1.5px solid rgba(127,90,240,0.13);
+    border-radius: 0.7em;
+    padding: 0.6em 1em;
+    margin-bottom: 0.7em;
+    font-size: 1em;
+    outline: none;
+    transition: border 0.2s;
+  }
+  select:focus, input[type="text"]:focus {
+    border: 1.5px solid #7f5af0;
+    background: rgba(36,40,56,0.28);
+  }
+  button, .bg-indigo-600, .bg-red-600 {
+    border-radius: 9999px;
+    font-weight: 700;
+    font-size: 1.1em;
+    padding: 0.7em 2.5em;
+    margin-top: 0.5em;
+    box-shadow: 0 2px 16px 0 #7f5af033;
+    transition: background 0.2s, box-shadow 0.2s;
+  }
+  button:hover, .bg-indigo-600:hover, .bg-red-600:hover {
+    background: linear-gradient(90deg, #23263a 0%, #7f5af0 100%) !important;
+    box-shadow: 0 4px 32px 0 #7f5af033;
+  }
+</style>
+<div class="glass-card">
+  <h2 class="text-2xl font-bold mb-4 text-center text-indigo-200">Remove Students</h2>
+  <div class="flex flex-wrap gap-4 mb-6 justify-center items-center">
+    <label>Class:
+      <select id="class-filter">
+        <option value="all">All</option>
+        <option value="6">Class 6</option>
+        <option value="7">Class 7</option>
+        <option value="8">Class 8</option>
+        <option value="9">Class 9</option>
+        <option value="10">Class 10</option>
+        <option value="11_arts">Class 11 Arts</option>
+        <option value="11_science">Class 11 Science</option>
+        <option value="12_arts">Class 12 Arts</option>
+        <option value="12_science">Class 12 Science</option>
+      </select>
+    </label>
+    <label>Search:
+      <input type="text" id="student-search" placeholder="Name or Roll Number">
+    </label>
+  </div>
+  <table id="students-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Roll Number</th>
+        <th>Class</th>
+        <th>Dues Count</th>
+        <th>Total Dues (₹)</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for entry in students %}
+      <tr class="student-row" data-class="{{ entry.student.student_class }}" data-name="{{ entry.student.full_name|lower }} {{ entry.student.roll_number|lower }}">
+        <td>{{ entry.student.full_name }}</td>
+        <td>{{ entry.student.roll_number }}</td>
+        <td>{{ entry.student.student_class }}</td>
+        <td>{{ entry.dues_count }}</td>
+        <td>{{ entry.dues_total }}</td>
+        <td>
+          <form method="post" style="display:inline;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="student_id" value="{{ entry.student.id }}">
+            <button type="submit" class="bg-red-600" onclick="return confirm('Remove this student?');">Remove</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="text-center py-4 text-gray-500">No students found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div class="mt-6 text-center">
+    <a href="{{ url_for('admin.home1') }}" class="text-indigo-600 hover:underline">Back to Dashboard</a>
+  </div>
+</div>
+<script>
+// Client-side filtering for class and search
+function filterStudents() {
+  const classFilter = document.getElementById('class-filter').value;
+  const search = document.getElementById('student-search').value.toLowerCase();
+  document.querySelectorAll('.student-row').forEach(function(row) {
+    const studentClass = row.getAttribute('data-class');
+    const studentName = row.getAttribute('data-name');
+    const classMatch = (classFilter === 'all' || studentClass === classFilter);
+    const nameMatch = (studentName.includes(search));
+    row.style.display = (classMatch && nameMatch) ? '' : 'none';
+  });
+}
+document.getElementById('class-filter').addEventListener('change', filterStudents);
+document.getElementById('student-search').addEventListener('input', filterStudents);
+// Optionally, set the dropdown to the previously selected class if you want to persist selection
+</script>
+{% endblock %} 

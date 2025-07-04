@@ -1,0 +1,118 @@
+{% extends 'shared/base.html' %}
+{% block content %}
+<style>
+  body, html { background: #181c24 !important; }
+  .glass-card {
+    background: rgba(24,28,36,0.45);
+    border-radius: 1.5rem;
+    box-shadow: 0 4px 32px 0 rgba(0,0,0,0.10);
+    border: 1.5px solid rgba(127,90,240,0.13);
+    backdrop-filter: blur(8px);
+    position: relative;
+    z-index: 3;
+    margin-bottom: 1rem;
+    padding: 2.5rem 2rem 3rem 2rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    color: #e0e6f7;
+  }
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: rgba(24,28,36,0.35);
+    border-radius: 1rem;
+    overflow: hidden;
+    color: #e0e6f7;
+    margin-bottom: 2em;
+    box-shadow: 0 2px 16px 0 rgba(127,90,240,0.08);
+  }
+  th, td {
+    padding: 0.9em 1em;
+    text-align: left;
+    border-bottom: 1px solid rgba(127,90,240,0.10);
+  }
+  th {
+    background: rgba(127,90,240,0.13);
+    color: #b7bfff;
+    font-weight: 700;
+    font-size: 1.05em;
+  }
+  tr:last-child td { border-bottom: none; }
+  .bg-green-600, .bg-red-600 {
+    background: linear-gradient(90deg, #7f5af0 0%, #23263a 100%) !important;
+    color: #fff !important;
+  }
+  .text-indigo-700, .text-red-700, .text-purple-700, .text-green-700 {
+    color: #b7bfff !important;
+  }
+  textarea, input[type="text"] {
+    background: rgba(36,40,56,0.18);
+    color: #e0e6f7;
+    border: 1.5px solid rgba(127,90,240,0.13);
+    border-radius: 0.7em;
+    padding: 0.6em 1em;
+    margin-bottom: 0.7em;
+    font-size: 1em;
+    outline: none;
+    transition: border 0.2s;
+  }
+  textarea:focus, input[type="text"]:focus {
+    border: 1.5px solid #7f5af0;
+    background: rgba(36,40,56,0.28);
+  }
+  button, .bg-green-600, .bg-red-600 {
+    border-radius: 9999px;
+    font-weight: 700;
+    font-size: 1.1em;
+    padding: 0.7em 2.5em;
+    margin-top: 0.5em;
+    box-shadow: 0 2px 16px 0 #7f5af033;
+    transition: background 0.2s, box-shadow 0.2s;
+  }
+  button:hover, .bg-green-600:hover, .bg-red-600:hover {
+    background: linear-gradient(90deg, #23263a 0%, #7f5af0 100%) !important;
+    box-shadow: 0 4px 32px 0 #7f5af033;
+  }
+</style>
+<div class="glass-card">
+  <h2 class="text-2xl font-bold mb-4 text-center text-indigo-200">Dropout Request Details</h2>
+  <table>
+    <tr><th>Name</th><td>{{ student.full_name }}</td></tr>
+    <tr><th>Roll Number</th><td>{{ student.roll_number }}</td></tr>
+    <tr><th>Class</th><td>{{ student.student_class }}</td></tr>
+    <tr><th>School</th><td>{{ student.school_name }}</td></tr>
+    <tr><th>Outstanding Dues</th><td><span class="font-semibold text-red-600">₹{{ total_due }}</span></td></tr>
+  </table>
+  <h3 class="text-lg font-semibold mb-2">Dues Details</h3>
+  <ul class="mb-4">
+    {% for due in dues %}
+      <li>Month: {{ due.month }}, Amount: ₹{{ due.amount_due }}</li>
+    {% else %}
+      <li>No outstanding dues.</li>
+    {% endfor %}
+  </ul>
+  {% if dropout.status == 'pending' %}
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="flex gap-4 mb-4">
+      <button type="submit" name="action" value="approve" class="bg-green-600" {% if total_due > 0 %}disabled{% endif %}>Approve</button>
+      <button type="submit" name="action" value="reject" class="bg-red-600">Reject</button>
+    </div>
+    <div class="mb-2">
+      <label for="admin_response" class="block">Rejection Reason (if rejecting):</label>
+      <textarea name="admin_response" id="admin_response" rows="2"></textarea>
+    </div>
+  </form>
+  {% else %}
+    <div class="p-4 rounded text-center mb-4 {% if dropout.status == 'approved' %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+      This request has been <span class="font-bold">{{ dropout.status }}</span>.
+      {% if dropout.admin_response %}<br>Reason: {{ dropout.admin_response }}{% endif %}
+    </div>
+  {% endif %}
+  <div class="mt-6 text-center">
+    <a href="{{ url_for('admin.dropouts') }}" class="text-indigo-600 hover:underline">Back to Dropout Requests</a>
+  </div>
+</div>
+{% endblock %} 

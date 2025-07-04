@@ -1,0 +1,29 @@
+{% extends 'shared/base.html' %}
+{% block content %}
+<main class="mx-auto flex min-h-screen w-full items-center justify-center bg-gray-900 text-white">
+  <section class="flex w-[30rem] flex-col space-y-10">
+    <div class="text-center text-3xl font-bold">Update UPI Settings</div>
+    <form method="POST" class="space-y-8">
+      {{ form.hidden_tag() }}
+      <div>
+        {{ form.upi_id.label(class_="block mb-2") }}
+        {{ form.upi_id(class_="w-full px-3 py-2 rounded text-black") }}
+      </div>
+      <div>
+        {{ form.phone_number.label(class_="block mb-2") }}
+        {{ form.phone_number(class_="w-full px-3 py-2 rounded text-black") }}
+      </div>
+      <button type="submit" class="w-full bg-indigo-600 py-2 font-bold rounded hover:bg-indigo-400">
+        Update UPI Settings
+      </button>
+    </form>
+    
+    <!-- Back Button -->
+    <div class="text-center">
+      <a href="{{ url_for('admin.home1') }}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
+        <i class="fas fa-arrow-left mr-2"></i>Back to Admin Dashboard
+      </a>
+    </div>
+  </section>
+</main>
+{% endblock %} 

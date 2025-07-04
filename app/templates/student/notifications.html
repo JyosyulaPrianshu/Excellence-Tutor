@@ -1,0 +1,141 @@
+{% extends 'shared/base.html' %}
+{% block content %}
+<div class="w-full min-h-screen flex flex-col items-center justify-start py-8 px-2 relative">
+  <!-- Background Image -->
+  <div class="absolute inset-0 bg-cover bg-center bg-no-repeat z-0" style="background-image: url('https://images.unsplash.com/photo-1611606063065-ee7946f0787a?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');">
+    <div class="absolute inset-0 bg-black bg-opacity-60"></div>
+  </div>
+  <div class="w-full max-w-2xl bg-gray-900/80 rounded-2xl shadow-2xl p-6 md:p-10 mb-8 glass-card z-10 relative">
+    <h2 class="text-2xl font-extrabold text-white text-center mb-8 tracking-tight">Notifications</h2>
+    <div class="flex justify-center gap-4 mb-8">
+      <a href="{{ url_for('student.notifications', type='class') }}" class="px-6 py-2 rounded-lg font-semibold transition-all duration-200 text-sm md:text-base focus:outline-none {% if notif_type == 'class' %}bg-indigo-600 text-white shadow-lg scale-105{% else %}bg-gray-800 text-indigo-200 hover:bg-indigo-700 hover:text-white{% endif %}">Class Notifications</a>
+      <a href="{{ url_for('student.notifications', type='my') }}" class="px-6 py-2 rounded-lg font-semibold transition-all duration-200 text-sm md:text-base focus:outline-none {% if notif_type == 'my' %}bg-teal-600 text-white shadow-lg scale-105{% else %}bg-gray-800 text-teal-200 hover:bg-teal-700 hover:text-white{% endif %}">My Notifications</a>
+    </div>
+    {% if notifications %}
+      {% set newest = notifications[:10] %}
+      {% set oldest = notifications[10:] %}
+      <ul class="flex flex-col gap-4">
+        {% for note in newest %}
+        <li class="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20 hover:border-indigo-400/50 transition-all duration-300 hover:transform hover:scale-105 shadow-lg hover:shadow-xl">
+          <div class="flex justify-between items-start mb-4">
+            <div class="flex-1">
+              <h3 class="font-bold text-xl text-white mb-2">{{ note.message|safe }}</h3>
+              <p class="text-indigo-300 text-xs mb-1">{{ note.created_at|ist_time('%B %d, %Y %H:%M') }}</p>
+              {% if note.class_for and not note.message.startswith('📄') %}
+                <p class="text-xs text-gray-400 mt-1">Class: {% if note.class_for == 'all' %}All Students{% elif note.class_for == '6' %}Class 6{% elif note.class_for == '7' %}Class 7{% elif note.class_for == '8' %}Class 8{% elif note.class_for == '9' %}Class 9{% elif note.class_for == '10' %}Class 10{% elif note.class_for == '11_arts' %}Class 11 Arts{% elif note.class_for == '11_science' %}Class 11 Science{% elif note.class_for == '12_arts' %}Class 12 Arts{% elif note.class_for == '12_science' %}Class 12 Science{% else %}{{ note.class_for }}{% endif %}</p>
+              {% endif %}
+            </div>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% if oldest %}
+      <div class="mt-10">
+        <h3 class="text-lg font-bold text-white mb-4">Older Notifications</h3>
+        <div class="overflow-x-auto">
+          <table class="min-w-full bg-gray-800/80 rounded-lg">
+            <thead>
+              <tr>
+                <th class="px-4 py-2 text-left text-indigo-300">Message</th>
+                <th class="px-4 py-2 text-left text-indigo-300">Date</th>
+                <th class="px-4 py-2 text-left text-indigo-300">Class</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for note in oldest %}
+              <tr class="border-b border-gray-700 hover:bg-gray-700/40 transition">
+                <td class="px-4 py-2 text-white">
+                  {{ note.message[:30]|safe }}{% if note.message|length > 30 %}... <button type="button" class="read-more-btn" data-message="{{ note.message|escape }}">Read more</button>{% endif %}
+                </td>
+                <td class="px-4 py-2 text-indigo-200">{{ note.created_at|ist_time('%B %d, %Y %H:%M') }}</td>
+                <td class="px-4 py-2 text-gray-300">
+                  {% if note.class_for == 'all' %}All Students{% elif note.class_for == '6' %}Class 6{% elif note.class_for == '7' %}Class 7{% elif note.class_for == '8' %}Class 8{% elif note.class_for == '9' %}Class 9{% elif note.class_for == '10' %}Class 10{% elif note.class_for == '11_arts' %}Class 11 Arts{% elif note.class_for == '11_science' %}Class 11 Science{% elif note.class_for == '12_arts' %}Class 12 Arts{% elif note.class_for == '12_science' %}Class 12 Science{% else %}{{ note.class_for }}{% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% endif %}
+    {% else %}
+      <div class="text-center text-gray-400 py-8">No notifications yet.</div>
+    {% endif %}
+    <div class="w-full text-center mt-10">
+      <a href="{{ url_for('student.home') }}" class="btn-premium px-8 py-2">Back to Home</a>
+    </div>
+  </div>
+</div>
+<!-- Modal for full message -->
+<div id="readMoreModal" class="read-more-modal" style="display:none;">
+  <div class="read-more-modal-content">
+    <span class="read-more-modal-close" id="readMoreModalClose">&times;</span>
+    <div id="readMoreModalMessage"></div>
+  </div>
+</div>
+<script>
+  // Modal logic for Read more
+  document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('readMoreModal');
+    const modalContent = document.getElementById('readMoreModalMessage');
+    const modalClose = document.getElementById('readMoreModalClose');
+    document.querySelectorAll('.read-more-btn').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        modalContent.innerHTML = btn.getAttribute('data-message');
+        modal.style.display = 'flex';
+      });
+    });
+    modalClose.addEventListener('click', function() {
+      modal.style.display = 'none';
+    });
+    window.addEventListener('click', function(event) {
+      if (event.target === modal) {
+        modal.style.display = 'none';
+      }
+    });
+  });
+</script>
+<style>
+.read-more-modal {
+  display: none;
+  position: fixed;
+  z-index: 10000;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(24,28,36,0.85);
+  align-items: center;
+  justify-content: center;
+}
+.read-more-modal[style*="display: flex"] {
+  display: flex !important;
+}
+.read-more-modal-content {
+  background: #23263a;
+  color: #fff;
+  padding: 2rem 2.5rem;
+  border-radius: 1rem;
+  max-width: 90vw;
+  max-height: 70vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 32px 0 rgba(0,0,0,0.25);
+  position: relative;
+  font-size: 1.1em;
+}
+.read-more-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1.5rem;
+  font-size: 2rem;
+  color: #7f5af0;
+  cursor: pointer;
+  font-weight: bold;
+  transition: color 0.2s;
+}
+.read-more-modal-close:hover {
+  color: #ff1744;
+}
+</style>
+{% endblock %} 

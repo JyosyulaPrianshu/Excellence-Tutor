@@ -1,0 +1,121 @@
+{% extends 'shared/base.html' %}
+{% block content %}
+<main class="mx-auto flex min-h-screen w-full items-center justify-center bg-gray-900 text-white">
+  <section class="flex w-[40rem] flex-col space-y-10">
+    <div class="text-center text-3xl font-bold">Add Learning Resource</div>
+    
+    <!-- Add Resource Form -->
+    <form method="POST" class="space-y-8">
+      {{ form.hidden_tag() }}
+      
+      <div>
+        {{ form.name.label(class_="block mb-2 text-sm font-medium") }}
+        <div style="position:relative;">
+          {{ form.name(class_="w-full px-3 py-2 rounded text-black", placeholder="Enter resource name", maxlength="25", id="resource-name-input") }}
+          <span id="resource-name-count" style="position:absolute; bottom:10px; right:18px; color:#6366f1; font-size:0.95em;">0/25</span>
+        </div>
+        {% if form.name.errors %}
+          {% for error in form.name.errors %}
+            <span class="text-red-400 text-sm">{{ error }}</span>
+          {% endfor %}
+        {% endif %}
+      </div>
+      
+      <div>
+        {{ form.link.label(class_="block mb-2 text-sm font-medium") }}
+        {{ form.link(class_="w-full px-3 py-2 rounded text-black", placeholder="https://example.com/resource") }}
+        {% if form.link.errors %}
+          {% for error in form.link.errors %}
+            <span class="text-red-400 text-sm">{{ error }}</span>
+          {% endfor %}
+        {% endif %}
+      </div>
+      
+      <div>
+        {{ form.description.label(class_="block mb-2 text-sm font-medium") }}
+        {{ form.description(class_="w-full px-3 py-2 rounded text-black", rows="4", placeholder="Brief description of the resource") }}
+        {% if form.description.errors %}
+          {% for error in form.description.errors %}
+            <span class="text-red-400 text-sm">{{ error }}</span>
+          {% endfor %}
+        {% endif %}
+      </div>
+      
+      <div>
+        {{ form.class_for.label(class_="block mb-2 text-sm font-medium") }}
+        {{ form.class_for(class_="w-full px-3 py-2 rounded text-black") }}
+        {% if form.class_for.errors %}
+          {% for error in form.class_for.errors %}
+            <span class="text-red-400 text-sm">{{ error }}</span>
+          {% endfor %}
+        {% endif %}
+      </div>
+      
+      <button type="submit" class="w-full bg-indigo-600 py-2 font-bold rounded hover:bg-indigo-400 transition-colors">
+        Add Resource
+      </button>
+    </form>
+    
+    <!-- Existing Resources -->
+    {% if resources %}
+    <div class="mt-8">
+      <h3 class="text-xl font-semibold mb-4">Recent Resources</h3>
+      <div class="overflow-x-auto">
+        <table class="min-w-full bg-gray-900/80 rounded-lg">
+          <thead>
+            <tr>
+              <th class="px-4 py-2 text-left text-indigo-300">Name</th>
+              <th class="px-4 py-2 text-left text-indigo-300">Class</th>
+              <th class="px-4 py-2 text-left text-indigo-300">Date</th>
+              <th class="px-4 py-2 text-left text-indigo-300">Link</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for resource in resources %}
+            <tr class="border-b border-gray-700 hover:bg-gray-700/40 transition">
+              <td class="px-4 py-2 text-white" title="{{ resource.name }}">{{ resource.name[:20] }}{% if resource.name|length > 20 %}...{% endif %}</td>
+              <td class="px-4 py-2 text-gray-300">
+                {% if resource.class_for == 'all' %}All Students{% elif resource.class_for == '6' %}Class 6{% elif resource.class_for == '7' %}Class 7{% elif resource.class_for == '8' %}Class 8{% elif resource.class_for == '9' %}Class 9{% elif resource.class_for == '10' %}Class 10{% elif resource.class_for == '11_arts' %}Class 11 Arts{% elif resource.class_for == '11_science' %}Class 11 Science{% elif resource.class_for == '12_arts' %}Class 12 Arts{% elif resource.class_for == '12_science' %}Class 12 Science{% else %}{{ resource.class_for }}{% endif %}
+              </td>
+              <td class="px-4 py-2 text-indigo-200">{{ resource.created_at.strftime('%Y-%m-%d') }}</td>
+              <td class="px-4 py-2">
+                <a href="{{ resource.link }}" target="_blank" class="inline-flex items-center px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition">
+                  <i class="fas fa-external-link-alt mr-2"></i>Open
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+    
+    <!-- Back Button -->
+    <div class="text-center">
+      <a href="{{ url_for('admin.upload_pdfs') }}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
+        <i class="fas fa-arrow-left mr-2"></i>Back to PDF Upload
+      </a>
+    </div>
+  </section>
+</main>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const nameInput = document.getElementById('resource-name-input');
+    const nameCounter = document.getElementById('resource-name-count');
+    function updateNameCounter() {
+      const len = nameInput.value.length;
+      nameCounter.textContent = `${len}/25`;
+      if (len >= 25) {
+        nameInput.value = nameInput.value.substring(0, 25);
+        nameCounter.textContent = '25/25';
+      }
+    }
+    if (nameInput && nameCounter) {
+      nameInput.addEventListener('input', updateNameCounter);
+      updateNameCounter();
+    }
+  });
+</script>
+{% endblock %} 

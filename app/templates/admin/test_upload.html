@@ -1,0 +1,102 @@
+{% extends 'shared/base.html' %}
+{% block content %}
+<div class="w-full min-h-screen flex flex-col items-center justify-center py-8 px-2 relative">
+  <!-- Background Image -->
+  <div class="absolute inset-0 bg-cover bg-center bg-no-repeat z-0" style="background-image: url('https://images.unsplash.com/photo-1520011980943-c1c29bb73d78?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTV8fHVwbG9hZHxlbnwwfHwwfHx8MA%3D%3D');">
+  </div>
+  <div class="w-full max-w-xl bg-gray-900/80 rounded-2xl shadow-2xl p-8 glass-card z-10 relative">
+    <h2 class="text-2xl font-extrabold text-white text-center mb-2 tracking-tight">Test Upload</h2>
+    <p class="text-indigo-200 text-center mb-6">Upload a new test and question paper below.</p>
+    
+    <!-- Date Restriction Notice -->
+    <div class="bg-blue-900/30 border border-blue-500/50 rounded-lg p-4 mb-6">
+      <div class="flex items-start gap-3">
+        <i class="fas fa-info-circle text-blue-300 mt-1"></i>
+        <div>
+          <h4 class="text-blue-200 font-semibold mb-1">Date Restriction</h4>
+          <p class="text-blue-100 text-sm">You can only create tests for the current month ({{ current_month_name }} {{ current_year }}). Tests cannot be created for past or future months.</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Error Messages -->
+    {% if form.errors %}
+      <div class="bg-red-900/30 border border-red-500/50 rounded-lg p-4 mb-6">
+        <div class="flex items-start gap-3">
+          <i class="fas fa-exclamation-triangle text-red-300 mt-1"></i>
+          <div>
+            <h4 class="text-red-200 font-semibold mb-2">Please fix the following errors:</h4>
+            <ul class="text-red-100 text-sm space-y-1">
+              {% for field, errors in form.errors.items() %}
+                {% for error in errors %}
+                  <li>• {{ error }}</li>
+                {% endfor %}
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+    
+    <form method="POST" enctype="multipart/form-data" class="space-y-6">
+      {{ form.hidden_tag() }}
+      <div>
+        {{ form.date.label(class_="block text-indigo-200 font-semibold mb-2") }}
+        {{ form.date(class_="w-full px-4 py-3 rounded-lg bg-gray-800/80 text-white border border-indigo-700 focus:ring-2 focus:ring-indigo-400 focus:outline-none transition") }}
+      </div>
+      <div>
+        {{ form.name.label(class_="block text-indigo-200 font-semibold mb-2") }}
+        {{ form.name(class_="w-full px-4 py-3 rounded-lg bg-gray-800/80 text-white border border-indigo-700 focus:ring-2 focus:ring-indigo-400 focus:outline-none transition") }}
+      </div>
+      <div>
+        {{ form.total_marks.label(class_="block text-indigo-200 font-semibold mb-2") }}
+        {{ form.total_marks(class_="w-full px-4 py-3 rounded-lg bg-gray-800/80 text-white border border-indigo-700 focus:ring-2 focus:ring-indigo-400 focus:outline-none transition") }}
+      </div>
+      <div>
+        {{ form.class_for.label(class_="block text-indigo-200 font-semibold mb-2") }}
+        {{ form.class_for(class_="w-full px-4 py-3 rounded-lg bg-gray-800/80 text-white border border-indigo-700 focus:ring-2 focus:ring-indigo-400 focus:outline-none transition") }}
+        {% if form.class_for.errors %}
+          {% for error in form.class_for.errors %}
+            <span class="text-red-400 text-sm">{{ error }}</span>
+          {% endfor %}
+        {% endif %}
+      </div>
+      {{ form.submit(class_="w-full btn-premium py-3 text-lg") }}
+    </form>
+    <div class="mt-10">
+      <h3 class="text-indigo-400 font-bold text-lg mb-4">Created Tests</h3>
+      {% set class_labels = {
+        'all': 'All Students',
+        '6': 'Class 6',
+        '7': 'Class 7',
+        '8': 'Class 8',
+        '9': 'Class 9',
+        '10': 'Class 10',
+        '11_arts': 'Class 11 Arts',
+        '11_science': 'Class 11 Science',
+        '12_arts': 'Class 12 Arts',
+        '12_science': 'Class 12 Science',
+      } %}
+      <ul class="flex flex-col gap-4">
+        {% for test in tests %}
+          <li class="bg-gray-800/80 rounded-xl p-5 shadow flex flex-col gap-2 animate__animated animate__fadeIn">
+            <div class="text-gray-100 text-base">
+              {{ test.date.strftime('%d-%m-%Y') }} - 
+              <span class="font-bold text-indigo-200">{{ test.name }}</span> 
+              (Total: <span class="text-indigo-300">{{ test.total_marks }}</span>)
+              <a href="{{ url_for('admin.studentleads') }}?selected_class={{ test.class_for }}" class="ml-2 px-2 py-1 rounded bg-indigo-700 text-indigo-100 text-xs font-semibold align-middle hover:bg-indigo-800 transition">
+                {{ class_labels.get(test.class_for, test.class_for) }}
+              </a>
+            </div>
+          </li>
+        {% else %}
+          <li class="text-center text-gray-400 py-8">No tests created yet.</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="w-full text-center mt-10">
+      <a href="{{ url_for('admin.home1') }}" class="btn-premium px-8 py-2">Back to Home</a>
+    </div>
+  </div>
+</div>
+{% endblock %} 
