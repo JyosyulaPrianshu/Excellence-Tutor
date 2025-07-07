@@ -114,7 +114,7 @@
           <i class="fas fa-check-circle mr-2"></i>Dues Assigned for {{ current_month_label }}
         </button>
       {% else %}
-        <form method="POST" action="{{ url_for('admin.trigger_monthly_dues') }}" class="action-button" onsubmit="return confirm('This will assign monthly dues for all students for {{ current_month_label }} at ₹{{ current_monthly_amount }} each. Continue?')">
+        <form method="POST" action="{{ url_for('admin.trigger_monthly_dues') }}" class="action-button" onsubmit="return confirm('This will assign monthly dues for ALL students for {{ current_month_label }}.\n\nFee Structure:\n- Class 6 & 7: ₹400\n- Class 8, 9, 10: ₹500\n- Class 11 & 12 Arts: ₹700\n- Class 11 & 12 Science: ₹400\n\nAre you sure you want to proceed?')">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <button type="submit" class="phonepe-btn-primary w-full" style="background: linear-gradient(90deg, rgba(0,230,118,0.4) 0%, rgba(0,191,174,0.4) 100%);">
             <i class="fas fa-calendar-plus mr-2"></i>Assign Monthly Dues (with above fee structure)
