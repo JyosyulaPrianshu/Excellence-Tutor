@@ -72,9 +72,15 @@ def upload_pdfs():
             cloudinary_url = None
             try:
                 from app.utils import upload_pdf_to_cloudinary
+                current_app.logger.info(f'Attempting Cloudinary upload for file: {secure_filename}')
                 cloudinary_url = upload_pdf_to_cloudinary(file, secure_filename)
+                if cloudinary_url:
+                    current_app.logger.info(f'Cloudinary upload successful: {cloudinary_url}')
+                else:
+                    current_app.logger.warning('Cloudinary upload returned None')
             except Exception as e:
-                current_app.logger.warning(f'Cloudinary upload failed: {e}')
+                current_app.logger.error(f'Cloudinary upload failed: {e}')
+                flash(f'Cloudinary upload failed: {str(e)}', 'warning')
             
             # Save file locally as backup
             pdf_folder = os.path.join(current_app.root_path, 'static', 'pdfs')

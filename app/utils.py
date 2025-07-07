@@ -435,11 +435,22 @@ def upload_pdf_to_cloudinary(file, filename):
         import cloudinary.uploader
         
         # Configure Cloudinary
+        cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME')
+        api_key = os.environ.get('CLOUDINARY_API_KEY')
+        api_secret = os.environ.get('CLOUDINARY_API_SECRET')
+        
+        if not all([cloud_name, api_key, api_secret]):
+            print("Cloudinary credentials not found in environment variables")
+            return None
+        
         cloudinary.config(
-            cloud_name=os.environ.get('CLOUDINARY_CLOUD_NAME'),
-            api_key=os.environ.get('CLOUDINARY_API_KEY'),
-            api_secret=os.environ.get('CLOUDINARY_API_SECRET')
+            cloud_name=cloud_name,
+            api_key=api_key,
+            api_secret=api_secret
         )
+        
+        # Reset file pointer to beginning
+        file.seek(0)
         
         # Upload file to Cloudinary
         result = cloudinary.uploader.upload(
@@ -449,6 +460,7 @@ def upload_pdf_to_cloudinary(file, filename):
             format="pdf"
         )
         
+        print(f"Cloudinary upload successful: {result['secure_url']}")
         return result['secure_url']
         
     except ImportError:

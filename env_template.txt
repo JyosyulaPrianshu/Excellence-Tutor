@@ -1,0 +1,13 @@
+# Copy this content to a file named .env in your project root
+
+# Cloudinary Configuration
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+
+# Database Configuration
+DATABASE_URL=sqlite:///local.db
+
+# Flask Configuration
+SECRET_KEY=your-secret-key-here
+FLASK_ENV=development 
