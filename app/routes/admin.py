@@ -1089,12 +1089,18 @@ def dropout_request_detail(request_id):
                 profile = Profile.query.filter_by(user_id=user.id).first()
                 if profile:
                     db.session.delete(profile)
+                # Delete related Notifications
+                Notification.query.filter_by(user_id=user.id).delete()
                 # Delete related Fees
                 Fee.query.filter_by(user_id=user.id).delete()
                 # Delete related Payments
                 Payment.query.filter_by(user_id=user.id).delete()
                 # Delete related Marks
                 Mark.query.filter_by(user_id=user.id).delete()
+                # Delete related DropoutRequests
+                DropoutRequest.query.filter_by(user_id=user.id).delete()
+                # Delete related Resources (if created_by)
+                Resource.query.filter_by(created_by=user.id).delete()
                 # (Add other related deletions as needed)
                 db.session.delete(user)
                 db.session.commit()
@@ -1146,12 +1152,18 @@ def remove_students():
         student_name = student.full_name  # Save name before deletion
         # Delete related Profile
         db.session.delete(student)
+        # Delete related Notifications
+        Notification.query.filter_by(user_id=user.id).delete()
         # Delete related Fees
         Fee.query.filter_by(user_id=user.id).delete()
         # Delete related Payments
         Payment.query.filter_by(user_id=user.id).delete()
         # Delete related Marks
         Mark.query.filter_by(user_id=user.id).delete()
+        # Delete related DropoutRequests
+        DropoutRequest.query.filter_by(user_id=user.id).delete()
+        # Delete related Resources (if created_by)
+        Resource.query.filter_by(created_by=user.id).delete()
         # (Add other related deletions as needed)
         db.session.delete(user)
         db.session.commit()
