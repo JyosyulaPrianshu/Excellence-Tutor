@@ -1113,10 +1113,12 @@ def dropout_request_detail(request_id):
                     db.session.delete(profile)
                 # Delete related Notifications
                 Notification.query.filter_by(user_id=user.id).delete()
+                # Delete related Payments (must be before Fees)
+                Payment.query.filter(Payment.fee_id.in_(
+                    db.session.query(Fee.id).filter_by(user_id=user.id)
+                )).delete(synchronize_session=False)
                 # Delete related Fees
                 Fee.query.filter_by(user_id=user.id).delete()
-                # Delete related Payments
-                Payment.query.filter_by(user_id=user.id).delete()
                 # Delete related Marks
                 Mark.query.filter_by(user_id=user.id).delete()
                 # Delete related DropoutRequests
@@ -1176,10 +1178,12 @@ def remove_students():
         db.session.delete(student)
         # Delete related Notifications
         Notification.query.filter_by(user_id=user.id).delete()
+        # Delete related Payments (must be before Fees)
+        Payment.query.filter(Payment.fee_id.in_(
+            db.session.query(Fee.id).filter_by(user_id=user.id)
+        )).delete(synchronize_session=False)
         # Delete related Fees
         Fee.query.filter_by(user_id=user.id).delete()
-        # Delete related Payments
-        Payment.query.filter_by(user_id=user.id).delete()
         # Delete related Marks
         Mark.query.filter_by(user_id=user.id).delete()
         # Delete related DropoutRequests
