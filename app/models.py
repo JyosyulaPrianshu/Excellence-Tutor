@@ -82,6 +82,7 @@ class PDF(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(120), nullable=False)
     file_path = db.Column(db.String(256), nullable=False)
+    cloudinary_url = db.Column(db.String(500), nullable=True)  # URL for cloud storage
     uploaded_at = db.Column(db.DateTime, default=get_current_time_ist)
     class_for = db.Column(db.String(20), nullable=False, default='all')
 

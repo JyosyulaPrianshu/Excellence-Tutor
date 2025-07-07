@@ -27,7 +27,7 @@
             </td>
             <td class="px-4 py-2 text-indigo-200">{{ pdf.uploaded_at.strftime('%Y-%m-%d') }}</td>
             <td class="px-4 py-2">
-              <a href="{{ url_for('static', filename='pdfs/' ~ (pdf.file_path|static_bust)) }}" download class="inline-flex items-center px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition">
+              <a href="{{ pdf.cloudinary_url if pdf.cloudinary_url else url_for('static', filename='pdfs/' ~ (pdf.file_path|static_bust)) }}" download class="inline-flex items-center px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
                 </svg>

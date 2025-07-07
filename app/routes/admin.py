@@ -67,13 +67,23 @@ def upload_pdfs():
                 return redirect(url_for('admin.upload_pdfs'))
             # Generate secure filename
             secure_filename = generate_secure_filename(file.filename)
-            # Save file
+            
+            # Try to upload to Cloudinary first
+            cloudinary_url = None
+            try:
+                from app.utils import upload_pdf_to_cloudinary
+                cloudinary_url = upload_pdf_to_cloudinary(file, secure_filename)
+            except Exception as e:
+                current_app.logger.warning(f'Cloudinary upload failed: {e}')
+            
+            # Save file locally as backup
             pdf_folder = os.path.join(current_app.root_path, 'static', 'pdfs')
             os.makedirs(pdf_folder, exist_ok=True)
             file_path = os.path.join(pdf_folder, secure_filename)
             file.save(file_path)
+            
             # Create database record
-            pdf = PDF(title=title, file_path=secure_filename, class_for=class_for)
+            pdf = PDF(title=title, file_path=secure_filename, cloudinary_url=cloudinary_url, class_for=class_for)
             db.session.add(pdf)
             db.session.commit()
             # Prepare class label for notification

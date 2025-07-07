@@ -424,4 +424,48 @@ def optimize_database():
     except Exception as e:
         current_app.logger.error(f'Database optimization error: {str(e)}')
         db.session.rollback()
-        return False 
+        return False
+
+def upload_pdf_to_cloudinary(file, filename):
+    """
+    Upload PDF to Cloudinary and return the URL
+    """
+    try:
+        import cloudinary
+        import cloudinary.uploader
+        
+        # Configure Cloudinary
+        cloudinary.config(
+            cloud_name=os.environ.get('CLOUDINARY_CLOUD_NAME'),
+            api_key=os.environ.get('CLOUDINARY_API_KEY'),
+            api_secret=os.environ.get('CLOUDINARY_API_SECRET')
+        )
+        
+        # Upload file to Cloudinary
+        result = cloudinary.uploader.upload(
+            file,
+            public_id=f"pdfs/{filename}",
+            resource_type="raw",
+            format="pdf"
+        )
+        
+        return result['secure_url']
+        
+    except ImportError:
+        print("Cloudinary not installed. Install with: pip install cloudinary")
+        return None
+    except Exception as e:
+        print(f"Error uploading to Cloudinary: {e}")
+        return None
+
+def get_pdf_download_url(pdf_record):
+    """
+    Get the download URL for a PDF record
+    """
+    if hasattr(pdf_record, 'cloudinary_url') and pdf_record.cloudinary_url:
+        # Use Cloudinary URL if available
+        return pdf_record.cloudinary_url
+    else:
+        # Fallback to static file URL
+        from flask import url_for
+        return url_for('static', filename=f'pdfs/{pdf_record.file_path}') 
