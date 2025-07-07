@@ -56,6 +56,12 @@ def upload_pdfs():
     
     form = AdminPDFUploadForm()
     if form.validate_on_submit():
+        # Validate the PIN
+        entered_pin = form.pin.data
+        expected_pin = os.environ.get('PDF_UPLOAD_PIN')
+        if not expected_pin or entered_pin != expected_pin:
+            flash('Invalid PDF upload PIN.', 'danger')
+            return redirect(url_for('admin.upload_pdfs'))
         try:
             title = form.title.data
             file = form.pdf_file.data

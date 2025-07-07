@@ -45,6 +45,7 @@ class AdminPDFUploadForm(FlaskForm):
     title = StringField('PDF Title', validators=[DataRequired(), Length(max=25)])
     pdf_file = FileField('PDF File', validators=[DataRequired(), FileAllowed(['pdf'], 'PDFs only!')])
     class_for = SelectField('Class', choices=class_choices, validators=[DataRequired()])
+    pin = PasswordField('Upload PIN', validators=[DataRequired(), Length(min=4, max=32)])
     submit = SubmitField('Upload PDF')
 
 class AdminNotificationForm(FlaskForm):
