@@ -6,10 +6,12 @@
     <div class="absolute inset-0 bg-black bg-opacity-60"></div>
   </div>
   <div class="w-full max-w-4xl mx-auto z-10 relative">
-    <div class="flex justify-between items-center mb-10">
+    <div class="flex justify-between items-center mb-10 px-2 md:px-6 lg:px-10">
       <h2 class="text-3xl font-extrabold text-white tracking-tight" style="text-shadow: 0 2px 16px rgba(0,0,0,0.5)">Upload Study Material PDF</h2>
-      <a href="{{ url_for('admin.resource') }}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold rounded-xl shadow-md transition-all duration-200 hover:shadow-xl transform hover:scale-105 text-base sm:text-lg sm:px-8 sm:py-4">
-        <i class="fas fa-plus mr-2"></i>Add Resource
+      <a href="{{ url_for('admin.resource') }}" class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-indigo-600 hover:bg-indigo-700 shadow-lg transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-indigo-400 ml-4" title="Add Resource" style="box-shadow: 0 4px 16px 0 rgba(79,70,229,0.18);">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 6v12m6-6H6" />
+        </svg>
       </a>
     </div>
     <form method="POST" enctype="multipart/form-data" class="bg-white/10 backdrop-blur-md rounded-2xl shadow-xl p-8 mb-10 border border-gray-200/20 flex flex-col gap-6">
