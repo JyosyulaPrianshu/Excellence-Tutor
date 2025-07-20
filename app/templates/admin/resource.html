@@ -1,7 +1,7 @@
 {% extends 'shared/base.html' %}
 {% block content %}
-<main class="mx-auto flex min-h-screen w-full items-center justify-center bg-gray-900 text-white">
-  <section class="flex w-[40rem] flex-col space-y-10">
+<main class="mx-auto flex min-h-screen w-full items-center justify-center bg-gray-900 text-white pt-8 sm:pt-12 md:pt-16 lg:pt-20 pb-8 px-2">
+  <section class="flex w-full max-w-2xl flex-col space-y-10 px-2 sm:px-4 md:px-8 lg:px-12 xl:px-20">
     <div class="text-center text-3xl font-bold">Add Learning Resource</div>
     
     <!-- Add Resource Form -->
@@ -51,8 +51,8 @@
         {% endif %}
       </div>
       
-      <button type="submit" class="w-full bg-indigo-600 py-2 font-bold rounded hover:bg-indigo-400 transition-colors">
-        Add Resource
+      <button type="submit" class="w-full bg-indigo-600 py-3 text-lg font-bold rounded-xl shadow-md hover:bg-indigo-500 active:bg-indigo-700 transition-all duration-150 mt-2 mb-2 sm:py-2 sm:text-base sm:rounded">
+        <i class="fas fa-plus mr-2"></i>Add Resource
       </button>
     </form>
     
