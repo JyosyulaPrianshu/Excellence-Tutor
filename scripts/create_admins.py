@@ -2,6 +2,7 @@
 """
 Script to create admin users from environment variables.
 This script is used during deployment to ensure admin users exist.
+Deletes all existing admin users before creating new ones.
 """
 
 import os
@@ -17,7 +18,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def create_admins():
-    """Create admin users from environment variables"""
+    """Delete all existing admins, then create admin users from environment variables."""
     admin1_email = os.getenv('ADMIN1_EMAIL')
     admin1_password = os.getenv('ADMIN1_PASSWORD')
     admin2_email = os.getenv('ADMIN2_EMAIL')
@@ -38,11 +39,12 @@ def create_admins():
 
     with app.app_context():
         try:
+            # Delete all existing admin users
+            num_deleted = User.query.filter_by(is_admin=True).delete()
+            db.session.commit()
+            print(f"Deleted {num_deleted} existing admin user(s).")
+            # Create new admins
             for email, password in admins:
-                existing = User.query.filter_by(email=email).first()
-                if existing:
-                    print(f"Admin with email {email} already exists.")
-                    continue
                 admin = User(email=email, password=generate_password_hash(password), is_admin=True)
                 db.session.add(admin)
                 print(f"Added admin: {email}")
