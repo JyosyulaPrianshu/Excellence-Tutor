@@ -75,10 +75,40 @@
     background: linear-gradient(90deg, #23263a 0%, #7f5af0 100%) !important;
     box-shadow: 0 4px 32px 0 #7f5af033;
   }
+  @media (max-width: 600px) {
+    .glass-card {
+      padding: 1rem 0.3rem 1.5rem 0.3rem;
+    }
+    table {
+      font-size: 0.95em;
+    }
+    th, td {
+      padding: 0.5em 0.5em;
+    }
+    .filter-controls {
+      flex-direction: column !important;
+      align-items: stretch !important;
+      gap: 0.5rem !important;
+    }
+    .filter-controls label {
+      width: 100%;
+    }
+    .action-btn {
+      width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
+      padding-left: 0.5em;
+      padding-right: 0.5em;
+    }
+    .table-responsive {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
 </style>
 <div class="glass-card">
   <h2 class="text-2xl font-bold mb-4 text-center text-indigo-200">Remove Students</h2>
-  <div class="flex flex-wrap gap-4 mb-6 justify-center items-center">
+  <div class="flex flex-wrap gap-4 mb-6 justify-center items-center filter-controls">
     <label>Class:
       <select id="class-filter">
         <option value="all">All</option>
@@ -97,38 +127,40 @@
       <input type="text" id="student-search" placeholder="Name or Roll Number">
     </label>
   </div>
-  <table id="students-table">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Roll Number</th>
-        <th>Class</th>
-        <th>Dues Count</th>
-        <th>Total Dues (₹)</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for entry in students %}
-      <tr class="student-row" data-class="{{ entry.student.student_class }}" data-name="{{ entry.student.full_name|lower }} {{ entry.student.roll_number|lower }}">
-        <td>{{ entry.student.full_name }}</td>
-        <td>{{ entry.student.roll_number }}</td>
-        <td>{{ entry.student.student_class }}</td>
-        <td>{{ entry.dues_count }}</td>
-        <td>{{ entry.dues_total }}</td>
-        <td>
-          <form method="post" style="display:inline;">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <input type="hidden" name="student_id" value="{{ entry.student.id }}">
-            <button type="submit" class="bg-red-600" onclick="return confirm('Remove this student?');">Remove</button>
-          </form>
-        </td>
-      </tr>
-      {% else %}
-      <tr><td colspan="6" class="text-center py-4 text-gray-500">No students found.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="table-responsive">
+    <table id="students-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Roll Number</th>
+          <th>Class</th>
+          <th>Dues Count</th>
+          <th>Total Dues (₹)</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for entry in students %}
+        <tr class="student-row" data-class="{{ entry.student.student_class }}" data-name="{{ entry.student.full_name|lower }} {{ entry.student.roll_number|lower }}">
+          <td>{{ entry.student.full_name }}</td>
+          <td>{{ entry.student.roll_number }}</td>
+          <td>{{ entry.student.student_class }}</td>
+          <td>{{ entry.dues_count }}</td>
+          <td>{{ entry.dues_total }}</td>
+          <td>
+            <form method="post" style="display:inline;">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="student_id" value="{{ entry.student.id }}">
+              <button type="submit" class="bg-red-600 action-btn" onclick="return confirm('Remove this student?');">Remove</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="text-center py-4 text-gray-500">No students found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
   <div class="mt-6 text-center">
     <a href="{{ url_for('admin.home1') }}" class="text-indigo-600 hover:underline">Back to Dashboard</a>
   </div>
