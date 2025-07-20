@@ -30,27 +30,25 @@
           {% endif %}
         </div>
         
-        <form method="GET" class="flex items-center gap-4">
+        <form method="GET" class="flex flex-col md:flex-row items-stretch md:items-center gap-2 md:gap-4 w-full md:w-auto">
           <!-- Month Selector -->
-          <select name="month" class="px-4 py-2 rounded-lg bg-gray-800/80 text-white border border-indigo-700 focus:ring-2 focus:ring-indigo-400 focus:outline-none">
+          <select name="month" class="px-4 py-2 rounded-lg bg-gray-800/80 text-white border border-indigo-700 focus:ring-2 focus:ring-indigo-400 focus:outline-none w-full md:w-auto mb-2 md:mb-0">
             {% for month_num, month_name in month_names.items() %}
               <option value="{{ month_num }}" {% if month_num == selected_month %}selected{% endif %}>
                 {{ month_name }}
               </option>
             {% endfor %}
           </select>
-          
           <!-- Year Selector -->
-          <select name="year" class="px-4 py-2 rounded-lg bg-gray-800/80 text-white border border-indigo-700 focus:ring-2 focus:ring-indigo-400 focus:outline-none">
+          <select name="year" class="px-4 py-2 rounded-lg bg-gray-800/80 text-white border border-indigo-700 focus:ring-2 focus:ring-indigo-400 focus:outline-none w-full md:w-auto mb-2 md:mb-0">
             {% for year in year_options %}
               <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>
                 {{ year }}
               </option>
             {% endfor %}
           </select>
-          
           <!-- Class Selector -->
-          <select name="class" class="px-4 py-2 rounded-lg bg-gray-800/80 text-white border border-indigo-700 focus:ring-2 focus:ring-indigo-400 focus:outline-none">
+          <select name="class" class="px-4 py-2 rounded-lg bg-gray-800/80 text-white border border-indigo-700 focus:ring-2 focus:ring-indigo-400 focus:outline-none w-full md:w-auto mb-2 md:mb-0">
             <option value="all" {% if selected_class == 'all' %}selected{% endif %}>All Classes</option>
             <option value="6" {% if selected_class == '6' %}selected{% endif %}>Class 6</option>
             <option value="7" {% if selected_class == '7' %}selected{% endif %}>Class 7</option>
@@ -62,8 +60,7 @@
             <option value="12_arts" {% if selected_class == '12_arts' %}selected{% endif %}>Class 12 Arts</option>
             <option value="12_science" {% if selected_class == '12_science' %}selected{% endif %}>Class 12 Science</option>
           </select>
-          
-          <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-semibold transition">
+          <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-semibold transition w-full md:w-auto">
             <i class="fas fa-filter mr-2"></i>Filter
           </button>
         </form>
