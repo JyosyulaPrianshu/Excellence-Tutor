@@ -51,33 +51,57 @@
     color: #b7bfff !important;
     text-decoration: underline;
   }
+  @media (max-width: 600px) {
+    .glass-card {
+      padding: 1rem 0.3rem 1.5rem 0.3rem;
+    }
+    table {
+      font-size: 0.95em;
+    }
+    th, td {
+      padding: 0.5em 0.5em;
+    }
+    .table-responsive {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .action-btn {
+      width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
+      padding-left: 0.5em;
+      padding-right: 0.5em;
+    }
+  }
 </style>
 <div class="glass-card">
   <h2 class="text-2xl font-bold mb-4 text-center text-indigo-200">Pending Dropout Requests</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Class</th>
-        <th>Requested At</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for req in requests %}
-      <tr>
-        <td>{{ req.user.profile.full_name }}</td>
-        <td>{{ req.user.profile.student_class }}</td>
-        <td>{{ req.requested_at.strftime('%Y-%m-%d %H:%M') }}</td>
-        <td>
-          <a href="{{ url_for('admin.dropout_request_detail', request_id=req.id) }}" class="text-indigo-600 hover:underline">View</a>
-        </td>
-      </tr>
-      {% else %}
-      <tr><td colspan="4" class="text-center py-4 text-gray-500">No pending requests found.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="table-responsive">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Class</th>
+          <th>Requested At</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for req in requests %}
+        <tr>
+          <td>{{ req.user.profile.full_name }}</td>
+          <td>{{ req.user.profile.student_class }}</td>
+          <td>{{ req.requested_at.strftime('%Y-%m-%d %H:%M') }}</td>
+          <td>
+            <a href="{{ url_for('admin.dropout_request_detail', request_id=req.id) }}" class="text-indigo-600 hover:underline action-btn">View</a>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="text-center py-4 text-gray-500">No pending requests found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
   <div class="mt-6 text-center">
     <a href="{{ url_for('admin.home1') }}" class="text-indigo-600 hover:underline">Back to Dashboard</a>
   </div>
