@@ -398,7 +398,26 @@ def forgot_password():
 
 @student_bp.route('/reset_password/<path:token>', methods=['GET', 'POST'])
 def reset_password(token):
-    return f'TOKEN: {token}'
+    from app.forms import PasswordResetForm
+    from app.utils import verify_password_reset_token
+    from app.models import User
+    form = PasswordResetForm()
+    email = verify_password_reset_token(token)
+    if not email:
+        flash('The password reset link is invalid or has expired.', 'danger')
+        return redirect(url_for('student.forgot_password'))
+    user = User.query.filter_by(email=email, is_admin=False).first()
+    if not user:
+        flash('User not found.', 'danger')
+        return redirect(url_for('student.forgot_password'))
+    if form.validate_on_submit():
+        from werkzeug.security import generate_password_hash
+        user.password = generate_password_hash(form.password.data)
+        from app import db
+        db.session.commit()
+        flash('Your password has been updated. Please log in.', 'success')
+        return redirect(url_for('student.login'))
+    return render_template('student/reset_password.html', form=form)
 
 @student_bp.route('/qr')
 def qr():
