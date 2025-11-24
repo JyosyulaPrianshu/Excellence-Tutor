@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
+import logging
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.models import User, Profile, PDF, Notification, Test, Mark, Fee, Payment, Setting, Resource, DropoutRequest
@@ -394,23 +395,32 @@ def forgot_password():
 @student_bp.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
     logging.warning("Entered reset_password route with token: %s", token)
-    email = verify_password_reset_token(token)
-    logging.warning("Token verification result: %s", email)
-    if not email:
-        flash('The password reset link is invalid or has expired.', 'danger')
+    try:
+        email = verify_password_reset_token(token)
+        logging.warning("Token verification result: %s", email)
+        if not email:
+            flash('The password reset link is invalid or has expired.', 'danger')
+            logging.error("Token invalid or expired for token: %s", token)
+            return redirect(url_for('student.forgot_password'))
+        user = User.query.filter_by(email=email, is_admin=False).first()
+        logging.warning("User lookup result: %s", user)
+        if not user:
+            flash('Invalid user.', 'danger')
+            logging.error("No user found for email: %s", email)
+            return redirect(url_for('student.forgot_password'))
+        form = PasswordResetForm()
+        if form.validate_on_submit():
+            from werkzeug.security import generate_password_hash
+            user.password = generate_password_hash(form.password.data)
+            db.session.commit()
+            logging.warning("Password updated for user: %s", user.email)
+            flash('Your password has been updated! You can now log in.', 'success')
+            return redirect(url_for('student.login'))
+        return render_template('student/reset_password.html', form=form)
+    except Exception as e:
+        logging.exception("Exception in reset_password route: %s", e)
+        flash('An unexpected error occurred. Please try again later.', 'danger')
         return redirect(url_for('student.forgot_password'))
-    user = User.query.filter_by(email=email, is_admin=False).first()
-    if not user:
-        flash('Invalid user.', 'danger')
-        return redirect(url_for('student.forgot_password'))
-    form = PasswordResetForm()
-    if form.validate_on_submit():
-        from werkzeug.security import generate_password_hash
-        user.password = generate_password_hash(form.password.data)
-        db.session.commit()
-        flash('Your password has been updated! You can now log in.', 'success')
-        return redirect(url_for('student.login'))
-    return render_template('student/reset_password.html', form=form)
 
 @student_bp.route('/qr')
 def qr():
