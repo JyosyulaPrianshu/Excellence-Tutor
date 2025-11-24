@@ -393,22 +393,28 @@ def forgot_password():
     return render_template('student/forgot_password.html', form=form)
 
 @student_bp.route('/reset_password/<token>', methods=['GET', 'POST'])
+@student_bp.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
+    import logging
     logging.warning("Entered reset_password route with token: %s", token)
     try:
+        logging.warning("About to verify token")
         email = verify_password_reset_token(token)
         logging.warning("Token verification result: %s", email)
         if not email:
             flash('The password reset link is invalid or has expired.', 'danger')
             logging.error("Token invalid or expired for token: %s", token)
             return redirect(url_for('student.forgot_password'))
+        logging.warning("About to query user")
         user = User.query.filter_by(email=email, is_admin=False).first()
         logging.warning("User lookup result: %s", user)
         if not user:
             flash('Invalid user.', 'danger')
             logging.error("No user found for email: %s", email)
             return redirect(url_for('student.forgot_password'))
+        logging.warning("About to create form")
         form = PasswordResetForm()
+        logging.warning("Form created: %s", form)
         if form.validate_on_submit():
             from werkzeug.security import generate_password_hash
             user.password = generate_password_hash(form.password.data)
@@ -416,6 +422,7 @@ def reset_password(token):
             logging.warning("Password updated for user: %s", user.email)
             flash('Your password has been updated! You can now log in.', 'success')
             return redirect(url_for('student.login'))
+        logging.warning("About to render template")
         return render_template('student/reset_password.html', form=form)
     except Exception as e:
         logging.exception("Exception in reset_password route: %s", e)
