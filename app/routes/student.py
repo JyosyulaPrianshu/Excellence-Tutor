@@ -393,7 +393,9 @@ def forgot_password():
 
 @student_bp.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
+    logging.warning("Entered reset_password route with token: %s", token)
     email = verify_password_reset_token(token)
+    logging.warning("Token verification result: %s", email)
     if not email:
         flash('The password reset link is invalid or has expired.', 'danger')
         return redirect(url_for('student.forgot_password'))
