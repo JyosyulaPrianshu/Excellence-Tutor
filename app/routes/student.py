@@ -1,4 +1,8 @@
+@student_bp.route('/reset_password/test')
+def reset_password_test():
+    return 'RESET TEST ROUTE REACHED'
 from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
+
 import logging
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -392,10 +396,9 @@ def forgot_password():
         return redirect(url_for('student.login'))
     return render_template('student/forgot_password.html', form=form)
 
-@student_bp.route('/reset_password/<token>', methods=['GET', 'POST'])
-@student_bp.route('/reset_password/<token>', methods=['GET', 'POST'])
+@student_bp.route('/reset_password/<path:token>', methods=['GET', 'POST'])
 def reset_password(token):
-    return 'RESET_PASS_REACHED'
+    return f'TOKEN: {token}'
 
 @student_bp.route('/qr')
 def qr():
