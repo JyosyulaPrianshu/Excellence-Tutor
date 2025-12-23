@@ -390,9 +390,24 @@ def forgot_password():
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data, is_admin=False).first()
         if user:
-            token = generate_password_reset_token(user.email)
-            send_password_reset_email(user, token)
-        flash('If your email is registered, you will receive a password reset link.', 'info')
+            try:
+                # Generate token
+                token = generate_password_reset_token(user.email)
+                if not token:
+                    raise ValueError("Failed to generate password reset token")
+                
+                # Send email
+                send_password_reset_email(user, token)
+                flash('If your email is registered, you will receive a password reset link.', 'info')
+                
+            except Exception as e:
+                current_app.logger.error(f"Error in forgot_password for {form.email.data}: {str(e)}")
+                flash('An error occurred while processing your request. Please try again later.', 'danger')
+        else:
+            # For security, don't reveal if the email exists
+            current_app.logger.info(f"Password reset requested for non-existent email: {form.email.data}")
+            flash('If your email is registered, you will receive a password reset link.', 'info')
+            
         return redirect(url_for('student.login'))
     return render_template('student/forgot_password.html', form=form)
 
