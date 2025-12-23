@@ -173,14 +173,49 @@ def verify_password_reset_token(token, max_age=3600):
 # Email helper
 
 def send_password_reset_email(user, token, is_admin=False):
+    from flask import current_app, url_for
+    from flask_mail import Message
     from app import mail
-    if is_admin:
-        reset_url = url_for('admin.reset_password', token=token, _external=True)
-    else:
-        reset_url = url_for('student.reset_password', token=token, _external=True)
-    msg = Message('Password Reset Request', sender='your_gmail_address@gmail.com', recipients=[user.email])
-    msg.body = f'''To reset your password, visit the following link:\n{reset_url}\n\nIf you did not make this request, simply ignore this email.'''
-    mail.send(msg)
+    
+    try:
+        # Ensure we have an application context
+        with current_app.app_context():
+            if is_admin:
+                reset_url = url_for('admin.reset_password', token=token, _external=True)
+            else:
+                reset_url = url_for('student.reset_password', token=token, _external=True)
+            
+            # Debug log the email configuration
+            current_app.logger.debug('Sending password reset email...')
+            current_app.logger.debug(f'MAIL_SERVER: {current_app.config.get("MAIL_SERVER")}')
+            current_app.logger.debug(f'MAIL_PORT: {current_app.config.get("MAIL_PORT")}')
+            current_app.logger.debug(f'MAIL_USE_TLS: {current_app.config.get("MAIL_USE_TLS")}')
+            current_app.logger.debug(f'MAIL_USERNAME: {current_app.config.get("MAIL_USERNAME")}')
+            current_app.logger.debug(f'MAIL_DEFAULT_SENDER: {current_app.config.get("MAIL_DEFAULT_SENDER")}')
+            
+            # Use the configured email from app.config
+            sender_email = current_app.config.get('MAIL_DEFAULT_SENDER') or current_app.config.get('MAIL_USERNAME')
+            if not sender_email:
+                current_app.logger.error('Neither MAIL_DEFAULT_SENDER nor MAIL_USERNAME is configured in app.config')
+                return False
+                
+            msg = Message(
+                'Password Reset Request',
+                sender=sender_email,
+                recipients=[user.email]
+            )
+            msg.body = f'''To reset your password, visit the following link:
+{reset_url}
+
+If you did not make this request, simply ignore this email.'''
+            
+            mail.send(msg)
+            current_app.logger.info(f'Password reset email sent to {user.email}')
+            return True
+            
+    except Exception as e:
+        current_app.logger.error(f'Error sending password reset email to {user.email if user else "unknown"}: {str(e)}', exc_info=True)
+        return False
 
 def validate_pdf_file(file):
     """
